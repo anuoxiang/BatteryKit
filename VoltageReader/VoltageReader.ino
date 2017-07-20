@@ -5,7 +5,14 @@
 
 Adafruit_PCD8544 display = Adafruit_PCD8544(5, 4, 3);
 int cells[] = {A0, A1, A2, A3, A6, A7};
-float rates[] = { 1.0, 1.0, 1.0, 1.0, 1.0 , 1.0 };
+
+float rates[] = { 1.0
+                  , (1000.0 + 1000.0) / 1000.0
+                  , (2000.0 + 1000.0) / 1000.0
+                  , (3300.0 + 1000.0) / 1000.0
+                  , (4700.0 + 1000.0) / 1000.0
+                  , (5100.0 + 1000.0) / 1000.0
+                };
 int ledPin = 13;      // select the pin for the LED
 
 #define CONTRAST 45
@@ -17,7 +24,7 @@ void setup() {
   Serial.begin(9600);
 
   Timer1.initialize(1000000);
-  Timer1.attachInterrupt(checker);
+  //Timer1.attachInterrupt(checker);
   display.begin();
   display.setContrast(CONTRAST);
   display.setRotation(1);
@@ -36,10 +43,17 @@ void loop() {
   int sensorValues[6];
   display.clearDisplay();
   display.setCursor(0, 0);
+  float voltage[6];
   for (int8_t i = 0; i < 6; i++) {
     sensorValues[i] = analogRead(cells[i]);
-    Serial.print(sensorValues[i] * (5.0 / 1023.0) * rates[i]);
-    display.print(sensorValues[i] * (5.0 / 1023.0)* rates[i]);
+    if (sensorValues[i] < 100) break;
+    if (i > 0)
+      voltage[i] = sensorValues[i] * (5.0 / 1023.0) * rates[i] - voltage[i - 1];
+    else
+      voltage[i] = sensorValues[i] * (5.0 / 1023.0) * rates[i];
+
+    Serial.print(voltage[i]);
+    display.print(voltage[i]);
     display.println("V");
     Serial.print("\t");
   }
