@@ -47,8 +47,12 @@ void loop() {
   for (int8_t i = 0; i < 6; i++) {
     sensorValues[i] = analogRead(cells[i]);
     if (sensorValues[i] < 100) break;
-    if (i > 0)
-      voltage[i] = sensorValues[i] * (5.0 / 1023.0) * rates[i] - voltage[i - 1];
+    if (i > 0) {
+      voltage[i] = sensorValues[i] * (5.0 / 1023.0) * rates[i];
+      for ( int8_t j = i - 1; j >= 0; j--) {
+        voltage[i] -= voltage[j];
+      }
+    }
     else
       voltage[i] = sensorValues[i] * (5.0 / 1023.0) * rates[i];
 
